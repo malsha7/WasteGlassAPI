@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WasteGlassAPI.Data;
-
-var builder = WebApplication.CreateBuilder(args);
+git pull origin main --allow-unrelated-histories
+var builder = WebApplication.CreateBuilder(args);git push -u origin main
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -9,7 +9,7 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WasteGlassDbContext>(options =>
     options.UseSqlite("Data Source=wasteglass.db"));
-    
+
 
 var app = builder.Build();
 
