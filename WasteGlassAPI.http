@@ -1,0 +1,6 @@
+@WasteGlassAPI_HostAddress = http://localhost:5062
+
+GET {{WasteGlassAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
