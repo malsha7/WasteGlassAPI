@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using WasteGlassAPI.Data;
 using WasteGlassAPI.Models;
+using WasteGlassAPI.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<WasteGlassDbContext>(options =>
@@ -77,6 +77,44 @@ app.MapGet("/api/suppliers", async (WasteGlassDbContext db) =>
     return await db.Suppliers.ToListAsync();
 });
 
+app.MapPost("/api/collections",
+async (CollectionRequest request, WasteGlassDbContext db) =>
+{
+    var supplier = await db.Suppliers.FindAsync(request.SupplierId);
+
+    if (supplier == null)
+        return Results.NotFound("Supplier not found");
+
+    var record = new CollectionRecord
+    {
+        SupplierId = request.SupplierId,
+        ClearGlassKg = request.ClearGlassKg,
+        ColouredGlassKg = request.ColouredGlassKg,
+        Condition = request.Condition,
+        Timestamp = DateTime.UtcNow
+    };
+
+    supplier.Status = "Collected";
+
+    db.CollectionRecords.Add(record);
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(record);
+});
+
+// barcode validation endpoint
+app.MapGet("/api/suppliers/validate/{supplierCode}",
+async (string supplierCode, WasteGlassDbContext db) =>
+{
+    var supplier = await db.Suppliers
+        .FirstOrDefaultAsync(s => s.SupplierCode == supplierCode);
+
+    if (supplier == null)
+        return Results.NotFound();
+
+    return Results.Ok(supplier);
+});
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
