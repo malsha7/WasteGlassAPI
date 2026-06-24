@@ -146,6 +146,71 @@ async (string code, WasteGlassDbContext db) =>
     });
 });
 
+app.MapGet("/api/route", async (WasteGlassDbContext db) =>
+{
+    var suppliers = await db.Suppliers.ToListAsync();
+
+    if (!suppliers.Any())
+        return Results.NotFound("No suppliers found");
+
+    var unvisited = new List<Supplier>(suppliers);
+    var route = new List<RouteStopDto>();
+
+    // Start Point (first supplier OR depot)
+    var current = unvisited.First();
+    unvisited.Remove(current);
+
+    double totalDistance = 0;
+
+    route.Add(new RouteStopDto
+    {
+        SupplierId = current.Id,
+        Name = current.Name,
+        Latitude = current.Latitude,
+        Longitude = current.Longitude,
+        DistanceFromPrevious = 0
+    });
+
+    while (unvisited.Any())
+    {
+        Supplier nearest = null;
+        double minDistance = double.MaxValue;
+
+        foreach (var s in unvisited)
+        {
+            var dist = GetDistance(
+                current.Latitude, current.Longitude,
+                s.Latitude, s.Longitude);
+
+            if (dist < minDistance)
+            {
+                minDistance = dist;
+                nearest = s;
+            }
+        }
+
+        current = nearest!;
+        unvisited.Remove(current);
+
+        totalDistance += minDistance;
+
+        route.Add(new RouteStopDto
+        {
+            SupplierId = current.Id,
+            Name = current.Name,
+            Latitude = current.Latitude,
+            Longitude = current.Longitude,
+            DistanceFromPrevious = minDistance
+        });
+    }
+
+    return Results.Ok(new RouteResponseDto
+    {
+        TotalDistance = totalDistance,
+        Route = route
+    });
+});
+
 app.Run();
 
 //Harversine function to calculate distance between two lat/lon points
