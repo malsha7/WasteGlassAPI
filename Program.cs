@@ -114,7 +114,38 @@ async (string supplierCode, WasteGlassDbContext db) =>
         return Results.NotFound();
 
     return Results.Ok(supplier);
+    
 });
+
+app.MapGet("/api/suppliers/{id}",
+async (int id, WasteGlassDbContext db) =>
+{
+    var supplier = await db.Suppliers.FindAsync(id);
+
+    return supplier == null
+        ? Results.NotFound()
+        : Results.Ok(supplier);
+});
+
+// This endpoint is for validating the supplier code (barcode) and retrieving supplier details. It will be used by the collection team to verify the supplier before collection.
+app.MapGet("/api/suppliers/validate/{code}",
+async (string code, WasteGlassDbContext db) =>
+{
+    var supplier = await db.Suppliers
+        .FirstOrDefaultAsync(s => s.SupplierCode == code);
+
+    if (supplier == null)
+        return Results.NotFound(new { message = "Invalid barcode" });
+
+    return Results.Ok(new
+    {
+        supplier.Id,
+        supplier.SupplierCode,
+        supplier.Name,
+        supplier.Status
+    });
+});
+
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
