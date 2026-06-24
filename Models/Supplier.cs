@@ -4,7 +4,7 @@ public class Supplier
 {
     public int Id { get; set; }
 
-    // THIS IS YOUR BARCODE VALUE
+    // This is barcode values
     public string SupplierCode { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;

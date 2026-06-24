@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WasteGlassAPI.Data;
-git pull origin main --allow-unrelated-histories
-var builder = WebApplication.CreateBuilder(args);git push -u origin main
+
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
