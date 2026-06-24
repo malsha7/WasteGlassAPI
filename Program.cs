@@ -103,19 +103,6 @@ async (CollectionRequest request, WasteGlassDbContext db) =>
     return Results.Ok(record);
 });
 
-// barcode validation endpoint
-app.MapGet("/api/suppliers/validate/{supplierCode}",
-async (string supplierCode, WasteGlassDbContext db) =>
-{
-    var supplier = await db.Suppliers
-        .FirstOrDefaultAsync(s => s.SupplierCode == supplierCode);
-
-    if (supplier == null)
-        return Results.NotFound();
-
-    return Results.Ok(supplier);
-    
-});
 
 app.MapGet("/api/suppliers/{id}",
 async (int id, WasteGlassDbContext db) =>
@@ -146,6 +133,7 @@ async (string code, WasteGlassDbContext db) =>
     });
 });
 
+// This endpoint calculates the optimal route for the collection team based on the suppliers' locations. It uses a simple nearest neighbor algorithm to determine the order of visits.
 app.MapGet("/api/route", async (WasteGlassDbContext db) =>
 {
     var suppliers = await db.Suppliers.ToListAsync();
@@ -209,6 +197,52 @@ app.MapGet("/api/route", async (WasteGlassDbContext db) =>
         TotalDistance = totalDistance,
         Route = route
     });
+});
+
+// This endpoint generates a trip report summarizing the collection from all suppliers. It calculates the total expected and collected quantities, and provides a status for each supplier based on whether the collected quantity meets the expected quantity.
+app.MapGet("/api/trip/report", async (WasteGlassDbContext db) =>
+{
+    var suppliers = await db.Suppliers.ToListAsync();
+    var collections = await db.CollectionRecords.ToListAsync();
+
+    if (!suppliers.Any())
+        return Results.NotFound("No suppliers found");
+
+    double totalExpected = 0;
+    double totalCollected = 0;
+
+    var report = new TripReportDto
+    {
+        TotalSuppliers = suppliers.Count
+    };
+
+    foreach (var supplier in suppliers)
+    {
+        var collected = collections
+            .Where(c => c.SupplierId == supplier.Id)
+            .Sum(c => c.ClearGlassKg + c.ColouredGlassKg);
+
+         var expected = supplier.ExpectedQuantityKg;
+
+        totalExpected += expected;
+        totalCollected += collected;
+
+        var status = collected < expected ? "Warning" : "OK";
+
+        report.Suppliers.Add(new SupplierReportDto
+        {
+            SupplierId = supplier.Id,
+            Name = supplier.Name,
+            ExpectedQuantityKg = expected,
+            CollectedKg = collected,
+            Status = status
+        });
+    }
+
+    report.TotalExpectedKg = totalExpected;
+    report.TotalCollectedKg = totalCollected;
+
+    return Results.Ok(report);
 });
 
 app.Run();

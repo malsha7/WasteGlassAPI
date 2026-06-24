@@ -14,7 +14,8 @@ public class SupplierReportDto
     public int SupplierId { get; set; }
     public string Name { get; set; } = string.Empty;
 
-    public double ExpectedKg { get; set; }
+     public double ExpectedQuantityKg { get; set; }
+     
     public double CollectedKg { get; set; }
 
     public string Status { get; set; } = string.Empty; // Ok / Warning
