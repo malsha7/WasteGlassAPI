@@ -17,5 +17,5 @@ public class SupplierReportDto
     public double ExpectedKg { get; set; }
     public double CollectedKg { get; set; }
 
-    public string Status { get; set; } = string.Empty; // OK / Warning
+    public string Status { get; set; } = string.Empty; // Ok / Warning
 }
