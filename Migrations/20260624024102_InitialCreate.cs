@@ -38,7 +38,7 @@ namespace WasteGlassAPI.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Latitude = table.Column<double>(type: "REAL", nullable: false),
                     Longitude = table.Column<double>(type: "REAL", nullable: false),
-                    ExpectedKg = table.Column<double>(type: "REAL", nullable: false),
+                    ExpectedQuantityKg = table.Column<double>(type: "REAL", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

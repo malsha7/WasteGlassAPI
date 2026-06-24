@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WasteGlassAPI.Data;
+using WasteGlassAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,39 @@ builder.Services.AddDbContext<WasteGlassDbContext>(options =>
 
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<WasteGlassDbContext>();
+
+    db.Database.EnsureCreated();
+
+    if (!db.Suppliers.Any())
+    {
+        db.Suppliers.AddRange(
+            new Supplier
+            {
+                SupplierCode = "SUP001",
+                Name = "Supplier A",
+                Latitude = 6.9271,
+                Longitude = 79.8612,
+                ExpectedQuantityKg = 100
+            },
+            new Supplier
+            {
+                SupplierCode = "SUP002",
+                Name = "Supplier B",
+                Latitude = 6.9340,
+                Longitude = 79.8500,
+                ExpectedQuantityKg = 150
+            }
+        );
+
+        db.SaveChanges();
+    }
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -37,6 +71,11 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+app.MapGet("/api/suppliers", async (WasteGlassDbContext db) =>
+{
+    return await db.Suppliers.ToListAsync();
+});
 
 app.Run();
 

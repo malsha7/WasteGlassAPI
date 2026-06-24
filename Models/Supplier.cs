@@ -13,7 +13,7 @@ public class Supplier
 
     public double Longitude { get; set; }
 
-    public double ExpectedKg { get; set; }
+    public double ExpectedQuantityKg { get; set; }
 
     public string Status { get; set; } = "Pending";
 }

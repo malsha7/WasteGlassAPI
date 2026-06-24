@@ -50,7 +50,7 @@ namespace WasteGlassAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<double>("ExpectedKg")
+                    b.Property<double>("ExpectedQuantityKg")
                         .HasColumnType("REAL");
 
                     b.Property<double>("Latitude")
